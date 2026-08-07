@@ -6,21 +6,11 @@ Ogrenciler = []
 genel_ortalama = []
 
 
-df = pd.DataFrame({
-    "Öğrenciler": Ogrenciler,
-    "genel_ortalama": genel_ortalama
-})
-
-
-def tablo_guncelle():
-    global df
-
-    df = pd.DataFrame({
+def tabloyu_getir():
+    return pd.DataFrame({
         "Öğrenciler": Ogrenciler,
         "genel_ortalama": genel_ortalama
     })
-
-    return df
 
 
 def Ogrenci_ekle():
@@ -28,8 +18,8 @@ def Ogrenci_ekle():
         try:
             Student = int(input("Student Count: "))
 
-            if Student < 1:
-                print("En az 1 öğrenci eklemelisiniz.")
+            if Student <= 0:
+                print("En az 1 öğrenci giriniz.")
                 continue
 
             break
@@ -40,7 +30,6 @@ def Ogrenci_ekle():
     for i in range(Student):
 
         isim = input("The Name Of Student: ")
-
         Ogrenciler.append(isim)
 
         while True:
@@ -57,123 +46,106 @@ def Ogrenci_ekle():
             except ValueError:
                 print("It's not a number!")
 
-    tablo_guncelle()
-
 
 def not_degisim():
 
     while True:
-        try:
-            disim = input(
-                "Degisim yapılacak öğrencinin adını giriniz: "
-            )
+        disim = input(
+            "Değişim yapılacak öğrencinin adını giriniz: "
+        )
 
-            if disim in Ogrenciler:
+        if disim not in Ogrenciler:
+            print("İsim bulunamadı.")
+            continue
 
-                print(
-                    "İsim bulundu. Sonraki aşamaya geçebilirsiniz."
-                )
+        while True:
+            try:
+                dnot = int(input("Yeni notunu giriniz: "))
 
-                while True:
-                    try:
-                        dnot = int(
-                            input("Yeni notunu giriniz: ")
-                        )
+                if dnot < 0 or dnot > 100:
+                    print("Geçerli bir not giriniz.")
+                    continue
 
-                        if dnot < 0 or dnot > 100:
-                            print(
-                                "Geçerli bir not giriniz."
-                            )
-                            continue
+                index = Ogrenciler.index(disim)
+                genel_ortalama[index] = dnot
 
-                        index = Ogrenciler.index(disim)
+                print("Not başarıyla değiştirildi.")
+                return
 
-                        genel_ortalama[index] = dnot
-
-                        tablo_guncelle()
-
-                        print(df)
-
-                        return
-
-                    except ValueError:
-                        print("Gerçek bir not gir.")
-
-            else:
-                print("İsim bulunamadı.")
-
-        except ValueError:
-            print("Geçersiz giriş.")
+            except ValueError:
+                print("Gerçek bir not gir.")
 
 
 def Ogrenci_sil():
 
     while True:
-
         silinen_ogrenci = input(
             "Silinecek öğrencinin adı: "
         )
 
-        if silinen_ogrenci in Ogrenciler:
+        if silinen_ogrenci not in Ogrenciler:
+            print("Öğrenci bulunamadı. Tekrar deneyiniz.")
+            continue
 
-            index = Ogrenciler.index(
-                silinen_ogrenci
-            )
+        index = Ogrenciler.index(silinen_ogrenci)
 
-            Ogrenciler.pop(index)
-            genel_ortalama.pop(index)
+        Ogrenciler.pop(index)
+        genel_ortalama.pop(index)
 
-            tablo_guncelle()
-
-            print(
-                f"{silinen_ogrenci} başarıyla silindi."
-            )
-
-            return
-
-        else:
-            print(
-                "Öğrenci bulunamadı. Tekrar deneyiniz."
-            )
+        print("Öğrenci başarıyla silindi.")
+        return
 
 
 def ad_degisim():
 
     while True:
-
         ad = input(
             "Adı değiştirilecek öğrenci: "
         )
 
-        if ad in Ogrenciler:
+        if ad not in Ogrenciler:
+            print("Listede bu isim yok.")
+            continue
 
-            print("İsim bulundu!")
+        yeni_isim = input("Yeni isim: ")
 
-            yeni_isim = input(
-                "Yeni isim: "
-            )
+        index = Ogrenciler.index(ad)
+        Ogrenciler[index] = yeni_isim
 
-            index = Ogrenciler.index(ad)
-
-            Ogrenciler[index] = yeni_isim
-
-            tablo_guncelle()
-
-            print(
-                f"{ad} → {yeni_isim}"
-            )
-
-            return
-
-        else:
-
-            print(
-                "Listede bu isim yok."
-            )
+        print("İsim başarıyla değiştirildi.")
+        return
 
 
-def tabloyu_getir():
+def analiz():
 
-    tablo_guncelle()
+    df = tabloyu_getir()
 
-    return df
+    if df.empty:
+        print("\nHenüz öğrenci bulunmuyor.")
+        return
+
+    print("""
+========================================
+             TABLO ANALİZİ
+========================================
+""")
+
+    toplam = len(df)
+    sinif_ortalamasi = df["genel_ortalama"].mean()
+    en_yuksek = df["genel_ortalama"].max()
+    en_dusuk = df["genel_ortalama"].min()
+
+    takdir = len(
+        df[df["genel_ortalama"] >= 85]
+    )
+
+    basarisiz = len(
+        df[df["genel_ortalama"] < 50]
+    )
+
+    print(f"Toplam Öğrenci       : {toplam}")
+    print(f"Sınıf Ortalaması     : {sinif_ortalamasi:.2f}")
+    print(f"En Yüksek Not        : {en_yuksek}")
+    print(f"En Düşük Not         : {en_dusuk}")
+    print(f"85+ Öğrenci          : {takdir}")
+    print(f"50 Altı Öğrenci      : {basarisiz}")
